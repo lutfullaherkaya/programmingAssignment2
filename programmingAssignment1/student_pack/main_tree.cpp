@@ -48,7 +48,7 @@ int main(void)
 
   std::list<std::pair<int, float> > datalist;
 
-  for (int i = 0; i < 12; ++i)
+  for (int i = 0; i < 5; ++i)
   {
     datalist.push_back(std::make_pair(i+1, i+1));
   }
@@ -68,11 +68,9 @@ int main(void)
   list_bst.print(std::cout);
   std::cout << std::endl;
 
-  std::cout << "complete: " << std::endl;
-  list_bst.toCompleteBST();
-  list_bst.print(std::cout);
 
-  /*
+
+  
   std::cout << "Inserting 9" << std::endl;
   list_bst.insert(9, 9);
   list_bst.print(std::cout);
@@ -97,9 +95,9 @@ int main(void)
   list_bst.insert(10, 10);
   list_bst.print(std::cout);
   std::cout << std::endl;
-
-  std::cout << "Removing 15" << std::endl;
-  list_bst.remove(15);
+  
+  std::cout << "Removing 4" << std::endl;
+  list_bst.remove(4);
   list_bst.print(std::cout);
   std::cout << std::endl;
 
@@ -138,6 +136,7 @@ int main(void)
   list_bst.print(std::cout);
   std::cout << std::endl;
 
+  /*
   std::cout << std::endl;
 
   BinarySearchTree<int, int, BalanceCondition> linear_bst;
