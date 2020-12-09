@@ -48,7 +48,7 @@ int main(void)
 
   std::list<std::pair<int, float> > datalist;
 
-  for (int i = 0; i < 7; ++i)
+  for (int i = 0; i < 12; ++i)
   {
     datalist.push_back(std::make_pair(i+1, i+1));
   }
@@ -67,6 +67,11 @@ int main(void)
   std::cout << "Constructed tree is as follows for AdditionalBalance condition: " << std::endl;
   list_bst.print(std::cout);
   std::cout << std::endl;
+
+  std::cout << "complete: " << std::endl;
+  list_bst.toCompleteBST();
+  list_bst.print(std::cout);
+
   /*
   std::cout << "Inserting 9" << std::endl;
   list_bst.insert(9, 9);

@@ -30,6 +30,9 @@
     <None Include="student_pack\Makefile">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\..\PA2_Text.pdf">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="student_pack\bst.h">

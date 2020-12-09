@@ -80,9 +80,17 @@ class BinarySearchTree
     void makeEmpty(Node * &);       // utility for destructor
     
     // Define your private utility functions below this line
-    typename Node* BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt);
     void printSideways(Node * kok, std::string str = "");
+    void completeTreeYap(Node *& kok, int i, const int & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData);
+    void completeTreeDegerYaz(Node *kok, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt);
+    void completeTreeHeightSubsizeYaz(Node *kok);
 
+    void dugumleriDiziyeEkleInorder(Node * kok, Node **& diziPtr);
+    void agacDugumleriniDiziDugumleriyleDegistir(Node *&kok, Node **& diziPtr);
+
+
+    //silinecek
+    Node* BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt);
 
   private: /* DO NOT CHANGE PROTOTYPES: compiler defaults are blocked */  
     BinarySearchTree(const BinarySearchTree &);
@@ -121,17 +129,12 @@ template <typename K, typename O, typename B, typename C>
 BinarySearchTree<K,O,B,C>::BinarySearchTree(const std::list<std::pair<K,O> > & datalist)
    : root(NULL), numNodes(0)  // change it as you'd like
 {
-    int dugumSayisi = datalist.size(); // not: bu sayi degisecek
-    std::cout << "asd" << dugumSayisi << std::endl;
+    int dugumSayisi = datalist.size();
     typename std::list<std::pair<K,O>>::const_iterator it = datalist.begin();
 
-
-
-    root = BSTConstructorUtility(dugumSayisi, it);
-
-    printSideways(root);
-    
-
+    completeTreeYap(root, 0, dugumSayisi, (*it).first, (*it).second);
+    completeTreeDegerYaz(root, it);
+    completeTreeHeightSubsizeYaz(root);
 }
 
 
@@ -140,7 +143,18 @@ template <typename K, typename O, typename B, typename C>
 void
 BinarySearchTree<K,O,B,C>::toCompleteBST()
 {
+    int dugumSayisi = root->subsize;
+    Node **dugumDizisi = new Node*[dugumSayisi];
+    Node **dugumDizisiPtr = dugumDizisi; 
+    dugumleriDiziyeEkleInorder(root, dugumDizisiPtr); // degisecek ptr
 
+    completeTreeYap(root, 0, dugumSayisi, dugumDizisi[0]->key, dugumDizisi[0]->data);
+
+    dugumDizisiPtr = dugumDizisi;
+    agacDugumleriniDiziDugumleriyleDegistir(root, dugumDizisiPtr);
+    completeTreeHeightSubsizeYaz(root);
+
+    delete[] dugumDizisi;
 }
 
 
@@ -351,7 +365,53 @@ BinarySearchTree<K,O,B,C>::max(const T & el1, const T & el2)
 
 // TALEBENIN EKLEDIGI UYE FONKSIYONLARI
 
-/* private utility.*/
+/* student private utility.*/
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+printSideways(Node * kok, std::string str) {
+    if (kok) {
+        printSideways(kok->right, str + "\t");
+        std::cout << str << kok->data << std::endl;
+        printSideways(kok->left, str + "\t");
+    }
+}
+
+/* student private utility.*/
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+completeTreeYap(Node *& kok, int i, const int & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData) {
+    if (i < dugumSayisi) {
+        kok = new Node(varsayilanKey, varsayilanData, NULL, NULL);
+        completeTreeYap(kok->left,  2*i+1, dugumSayisi, varsayilanKey, varsayilanData);
+        completeTreeYap(kok->right, 2*i+2, dugumSayisi, varsayilanKey, varsayilanData);
+    }
+}
+
+/* student private utility.*/
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+completeTreeDegerYaz(Node * kok, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt) {
+    if (kok) {
+        completeTreeDegerYaz(kok->left, listeIt);
+        kok->key = (*listeIt).first;
+        kok->data = (*listeIt).second;
+        ++listeIt;
+        completeTreeDegerYaz(kok->right, listeIt);
+    }
+}
+
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+completeTreeHeightSubsizeYaz(Node * kok) {
+    if (kok) {
+        completeTreeHeightSubsizeYaz(kok->left);
+        completeTreeHeightSubsizeYaz(kok->right);
+        kok->height = 1 + max(height(kok->right), height(kok->left));
+        kok->subsize = 1 + subsize(kok->right) + subsize(kok->left);
+    }
+}
+
+/* silinecek student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 typename BinarySearchTree<Key, Object, BalanceCondition, Comparator>::Node* BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
 BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt) {
@@ -369,12 +429,32 @@ BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_it
     }
 }
 
+/* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-printSideways(Node * kok, std::string str) {
+dugumleriDiziyeEkleInorder(Node * kok, Node **& diziPtr) {
     if (kok) {
-        printSideways(kok->right, str + "\t");
-        std::cout << str << kok->data << std::endl;
-        printSideways(kok->left, str + "\t");
+        dugumleriDiziyeEkleInorder(kok->left, diziPtr);
+        *diziPtr++ = kok;
+        dugumleriDiziyeEkleInorder(kok->right, diziPtr);
+    }
+}
+
+/* student private utility.*/
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+agacDugumleriniDiziDugumleriyleDegistir(Node *& kok, Node **& diziPtr) {
+    if (kok) {
+        agacDugumleriniDiziDugumleriyleDegistir(kok->left, diziPtr);
+
+        Node *eskiDugum = kok;
+        kok = *diziPtr++;
+        kok->left = eskiDugum->left;
+        kok->right = eskiDugum->right;
+        kok->height = 0;
+        kok->subsize = 1;
+        delete eskiDugum;
+
+        agacDugumleriniDiziDugumleriyleDegistir(kok->right, diziPtr);
     }
 }

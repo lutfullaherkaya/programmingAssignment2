@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\PA2_Text.pdf" />
     <None Include="student_pack\213_hw2.pdf" />
     <None Include="student_pack\main_movie.out" />
     <None Include="student_pack\main_moviestore.out" />
