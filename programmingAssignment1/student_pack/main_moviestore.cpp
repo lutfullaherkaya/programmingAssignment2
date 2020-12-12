@@ -2,7 +2,7 @@
 
 
 //Expected output is in "main_moviestore.out"
-/*
+
 void printAllMoviesSorted(const MovieStore & store)
 {
   std::cout << "All movies (id sorted):" << std::endl;
@@ -86,4 +86,3 @@ int main( )
 
   return 0;
 }
-*/

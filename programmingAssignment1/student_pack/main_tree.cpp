@@ -39,7 +39,7 @@ class AdditionalBalance
     }
 };
 
-
+/*
 int main(void)
 {
   BinarySearchTree<int, float> empty_bst;
@@ -136,7 +136,7 @@ int main(void)
   list_bst.print(std::cout);
   std::cout << std::endl;
 
-  /*
+  
   std::cout << std::endl;
 
   BinarySearchTree<int, int, BalanceCondition> linear_bst;
@@ -187,6 +187,7 @@ int main(void)
   {
     std::cout << (*itr)->key << " " << (*itr)->data << std::endl;
   }
-  */
+  
   return 0;
 }
+*/
