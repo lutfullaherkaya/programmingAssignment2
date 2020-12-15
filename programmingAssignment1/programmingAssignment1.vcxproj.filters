@@ -33,6 +33,7 @@
     <None Include="..\..\PA2_Text.pdf">
       <Filter>Source Files</Filter>
     </None>
+    <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="student_pack\bst.h">

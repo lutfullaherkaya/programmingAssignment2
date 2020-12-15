@@ -1,0 +1,8 @@
+# Rules in this file were initially inferred by Visual Studio IntelliCode from the D:\Ders\2. sınıf 1. dönem ders\ceng213 veri yapıları\ödevler\ödev 2\VSProgrammingAssignment2\programmingAssignment1\ codebase based on best match to current usage at 15.12.2020
+# There already existed an .editorconfig file in this directory. Copy rules from this .editorconfig.inferred file to the existing .editorconfig file as desired to have them take effect at this location.
+# You can modify the rules from these initially generated values to suit your own policies
+# You can learn more about editorconfig here: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
+[*.cs]
+
+indent_style = space
+indent_size = 2
