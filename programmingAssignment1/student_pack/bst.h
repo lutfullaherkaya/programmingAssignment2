@@ -73,39 +73,30 @@ class BinarySearchTree
     int height(Node *) const;
     int subsize(Node *) const;
     void print(Node *, std::ostream &) const;
+    Node *& asgariyiBul(Node *&kok) const;
 
     // Define your const private utility functions below this line
     void printSideways(Node * kok, std::string str = "") const;
-    bool yapraktir(Node * dugum) const;
-    void findYardimci(Node * kok, std::list<Node *> & liste, const Key &az, const Key &cok) const;
+    void findYardimci(Node * kok, std::list<Node *> &liste, const Key &az, const Key &cok) const;
+    void dugumleriListeyeEkleInorder(Node * kok, std::list<Node *> &liste) const;
+
 
   private:
     void makeEmpty(Node * &);       // utility for destructor
     
     // Define your private utility functions below this line
-    
-    Node *& asgari(Node *&kok);
-    
-    void bosDugumluCompleteTreeYap(const size_t & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData);
-    void bosDugumluCompleteTreeYapHelper(Node *& kok, size_t i, const size_t & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData);
-    void completeTreeDegerYaz(Node *kok, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt);
-    void completeTreeHeightSubsizeYaz();
-    void completeTreeHeightSubsizeYazHelper(Node *kok);
-    void dugumDizisindenAgaciYap(Node ** dugumDizisi, size_t dugumSayisi);
-    void dugumDizisindenSubtreeYap(Node *&subtreeKoku, Node ** dugumDizisi, size_t dugumSayisi);
-    void subtreeToCompleteBST(Node *&subtree);
+    void completeTreeOlusturBosDugumlu(Node *&kok, size_t i, const size_t &dugumSayisi, const Key &varsayilanKey, const Object &varsayilanData);
+    void altAgacHeightSubsizeGuncelle(Node *kok);
+    void dugumListesindenCompleteTreeYap(Node *&subtreeKoku, const std::list<Node*>& liste);
+    void altAgaciCompleteTreeYap(Node *&subtree);
 
-    Node** keyObjectPairListesindenDugumDizisiOlustur(const std::list<std::pair<Key, Object>> &liste);
-    void dugumleriDiziyeEkleInorder(Node * kok, Node **& diziPtr);
-    void agacDugumleriniDiziDugumleriyleDegistir(Node *&kok, Node **& diziPtr);
+    void agacDugumleriniListeDugumleriyleDegistir(Node *&kok, typename std::list<Node *>::const_iterator &it);
 
-    void insertYardimci(Node *&kok, const Key& key, const Object& data);
-    void removeYardimci(Node *&kok, const Key& key, bool asgariyiSiliyoruz=false);
-    
+    void insertYardimci(Node *&kok, const Key &key, const Object &data);
+    void removeYardimci(Node *&kok, const Key &key, bool asgariyiSiliyoruz = false);
 
+    void dugumHeightVeSubsizeGuncelle(Node *&dugum);
 
-    //silinecek
-    Node* BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt);
 
   private: /* DO NOT CHANGE PROTOTYPES: compiler defaults are blocked */  
     BinarySearchTree(const BinarySearchTree &);
@@ -144,21 +135,15 @@ template <typename K, typename O, typename B, typename C>
 BinarySearchTree<K,O,B,C>::BinarySearchTree(const std::list<std::pair<K,O> > & datalist)
    : root(NULL), numNodes(0)  // change it as you'd like
 {
-    if (!datalist.empty()) {
-        Node **dugumDizisi = keyObjectPairListesindenDugumDizisiOlustur(datalist);
-        dugumDizisindenAgaciYap(dugumDizisi, datalist.size());
-        delete[] dugumDizisi;
-
-        // key ve data nesnelerinin operator= fonksiyonunu kullanan eski implementasyon
-        /*
-        int dugumSayisi = datalist.size();
-        typename std::list<std::pair<K,O>>::const_iterator it = datalist.begin();
-
-        completeTreeYap(root, 0, dugumSayisi, (*it).first, (*it).second);
-        completeTreeDegerYaz(root, it);
-        completeTreeHeightSubsizeYaz(root);
-        */
+  if (!datalist.empty()) {
+    std::list<Node *> dugumListesi;
+    typename std::list<std::pair<K, O>>::const_iterator it;
+    for (it = datalist.begin(); it != datalist.end(); ++it) {
+      dugumListesi.push_back(new Node(it->first, it->second, NULL, NULL));
     }
+    dugumListesindenCompleteTreeYap(root, dugumListesi);
+    numNodes = subsize(root);
+  }
 }
 
 
@@ -167,7 +152,7 @@ template <typename K, typename O, typename B, typename C>
 void
 BinarySearchTree<K,O,B,C>::toCompleteBST()
 {
-    subtreeToCompleteBST(root);
+  altAgaciCompleteTreeYap(root);
 }
 
 
@@ -176,8 +161,8 @@ template <typename K, typename O, typename B, typename C>
 void
 BinarySearchTree<K,O,B,C>::insert(const K & k, const O & x)
 {
-    insertYardimci(root, k, x);
-    numNodes = subsize(root);
+  insertYardimci(root, k, x);
+  numNodes = subsize(root);
 }
 
 
@@ -186,8 +171,8 @@ template <typename K, typename O, typename B, typename C>
 void
 BinarySearchTree<K,O,B,C>::remove(const K & k)
 {
-    removeYardimci(root, k);
-    numNodes = subsize(root);
+  removeYardimci(root, k);
+  numNodes = subsize(root);
 }
 
 
@@ -230,9 +215,9 @@ template <typename K, typename O, typename B, typename C>
 std::list<typename BinarySearchTree<K,O,B,C>::Node *>
 BinarySearchTree<K,O,B,C>::find(const K & lower, const K & upper) const
 {
-    std::list<Node *> ranges;
-    findYardimci(root, ranges, lower, upper);
-    return ranges;
+  std::list<Node *> ranges;
+  findYardimci(root, ranges, lower, upper);
+  return ranges;
 }
 
 
@@ -382,269 +367,193 @@ BinarySearchTree<K,O,B,C>::max(const T & el1, const T & el2)
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
 printSideways(Node * kok, std::string str) const {
-    if (kok) {
-        printSideways(kok->right, str + "\t");
-        std::cout << str << kok->data << std::endl;
-        printSideways(kok->left, str + "\t");
-    }
+  if (kok) {
+    printSideways(kok->right, str + "\t");
+    std::cout << str << kok->data << std::endl;
+    printSideways(kok->left, str + "\t");
+  }
 }
 
 /* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 typename BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
 Node *&BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-asgari(Node *& kok) {
-    if (kok->left) {
-        return asgari(kok->left);
-    } else {
-        return kok;
-    }
+asgariyiBul(Node *&kok) const {
+  if (kok->left) {
+    return asgariyiBul(kok->left);
+  }
+  else {
+    return kok;
+  }
 }
 
 /* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-bosDugumluCompleteTreeYap(const size_t & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData) {
-    bosDugumluCompleteTreeYapHelper(root, 0, dugumSayisi, varsayilanKey, varsayilanData);
+completeTreeOlusturBosDugumlu(Node *&kok, size_t i, const size_t &dugumSayisi, const Key &varsayilanKey, const Object &varsayilanData) {
+  if (i < dugumSayisi) {
+    kok = new Node(varsayilanKey, varsayilanData, NULL, NULL);
+    completeTreeOlusturBosDugumlu(kok->left, 2 * i + 1, dugumSayisi, varsayilanKey, varsayilanData);
+    completeTreeOlusturBosDugumlu(kok->right, 2 * i + 2, dugumSayisi, varsayilanKey, varsayilanData);
+  }
 }
 
 /* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-bosDugumluCompleteTreeYapHelper(Node *& kok, size_t i, const size_t & dugumSayisi, const Key & varsayilanKey, const Object & varsayilanData) {
-    if (i < dugumSayisi) {
-        kok = new Node(varsayilanKey, varsayilanData, NULL, NULL);
-        bosDugumluCompleteTreeYapHelper(kok->left,  2*i+1, dugumSayisi, varsayilanKey, varsayilanData);
-        bosDugumluCompleteTreeYapHelper(kok->right, 2*i+2, dugumSayisi, varsayilanKey, varsayilanData);
-    }
-}
-
-/* student private utility. 
-   not: = operatorunu key ve objectte kullanabilecegimizi varsayiyoruz bu fonksiyonda, 
-   bu yuzden ise yaramaz bu cuknu operator= kullanmayabilirmis galiba key ve object.*/
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-completeTreeDegerYaz(Node * kok, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt) {
-    if (kok) {
-        completeTreeDegerYaz(kok->left, listeIt);
-        kok->key = listeIt->first;
-        kok->data = listeIt->second;
-        ++listeIt;
-        completeTreeDegerYaz(kok->right, listeIt);
-    }
-}
-
-
-/* student private utility.*/
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-completeTreeHeightSubsizeYaz() {
-    completeTreeHeightSubsizeYazHelper(root);
-    numNodes = subsize(root);
-}
-
-
-/* student private utility.*/
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-completeTreeHeightSubsizeYazHelper(Node * kok) {
-    if (kok) {
-        completeTreeHeightSubsizeYazHelper(kok->left);
-        completeTreeHeightSubsizeYazHelper(kok->right);
-        kok->height = 1 + max(height(kok->right), height(kok->left));
-        kok->subsize = 1 + subsize(kok->right) + subsize(kok->left);
-    }
-}
-
-/* silinecek student private utility. */
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-typename BinarySearchTree<Key, Object, BalanceCondition, Comparator>::Node* BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-BSTConstructorUtility(int n, typename std::list<std::pair<Key,Object>>::const_iterator & listeIt) {
-    if (n <= 0) {
-        return NULL;
-    } else {
-        Node* sol = BSTConstructorUtility(n/2, listeIt);
-
-        Node* root = new Node(listeIt->first, listeIt->second, sol, NULL);
-        ++listeIt;
-
-        root->right = BSTConstructorUtility(n - n/2 - 1, listeIt);
-
-        return root;
-    }
+altAgacHeightSubsizeGuncelle(Node *kok) {
+  if (kok) {
+    altAgacHeightSubsizeGuncelle(kok->left);
+    altAgacHeightSubsizeGuncelle(kok->right);
+    dugumHeightVeSubsizeGuncelle(kok);
+  }
 }
 
 /* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-dugumleriDiziyeEkleInorder(Node * kok, Node **& diziPtr) {
-    if (kok) {
-        dugumleriDiziyeEkleInorder(kok->left, diziPtr);
-        *diziPtr++ = kok;
-        dugumleriDiziyeEkleInorder(kok->right, diziPtr);
-    }
+dugumleriListeyeEkleInorder(Node * kok, std::list<Node *> &liste) const {
+  if (kok) {
+    dugumleriListeyeEkleInorder(kok->left, liste);
+    liste.push_back(kok);
+    dugumleriListeyeEkleInorder(kok->right, liste);
+  }
 }
 
 /* student private utility.*/
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-agacDugumleriniDiziDugumleriyleDegistir(Node *& kok, Node **& diziPtr) {
-    if (kok) {
-        agacDugumleriniDiziDugumleriyleDegistir(kok->left, diziPtr);
+agacDugumleriniListeDugumleriyleDegistir(Node *&kok, typename std::list<Node *>::const_iterator &it) {
+  if (kok) {
+    agacDugumleriniListeDugumleriyleDegistir(kok->left, it);
 
-        Node *eskiDugum = kok;
-        kok = *diziPtr++;
-        kok->left = eskiDugum->left;
-        kok->right = eskiDugum->right;
-        kok->height = 0;
-        kok->subsize = 1;
-        delete eskiDugum;
+    Node *eskiDugum = kok;
+    kok = *it++;
+    kok->left = eskiDugum->left;
+    kok->right = eskiDugum->right;
+    kok->height = 0;
+    kok->subsize = 1;
+    delete eskiDugum;
 
-        agacDugumleriniDiziDugumleriyleDegistir(kok->right, diziPtr);
-    }
-}
-
-/* student private utility. donulen Node* dizisinin free edilmesi unutulmamalidir. */
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-typename BinarySearchTree<Key, Object, BalanceCondition, Comparator>::Node ** BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-keyObjectPairListesindenDugumDizisiOlustur(const std::list<std::pair<Key,Object>>& liste) {
-    int dugumSayisi = liste.size();
-    typename std::list<std::pair<Key, Object>>::const_iterator it = liste.begin();
-    Node **dugumDizisi = new Node*[dugumSayisi];
-    for (int i = 0; i < dugumSayisi; ++i) {
-        dugumDizisi[i] = new Node(it->first, it->second, NULL, NULL);
-        ++it;
-    }
-    return dugumDizisi;
+    agacDugumleriniListeDugumleriyleDegistir(kok->right, it);
+  }
 }
 
 /* student private utility. */
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-dugumDizisindenAgaciYap(Node ** dugumDizisi, size_t dugumSayisi) {
-    dugumDizisindenSubtreeYap(root, dugumDizisi, dugumSayisi);
+dugumListesindenCompleteTreeYap(Node *&subtreeKoku, const std::list<Node*>& liste) {
+  if (!liste.empty()) {
+    completeTreeOlusturBosDugumlu(subtreeKoku, 0, liste.size(), liste.front()->key, liste.front()->data);
+    typename std::list<Node *>::const_iterator it = liste.begin();
+    agacDugumleriniListeDugumleriyleDegistir(subtreeKoku, it);
+    altAgacHeightSubsizeGuncelle(subtreeKoku);
+  }
 }
 
 /* student private utility. */
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-dugumDizisindenSubtreeYap(Node *& subtreeKoku, Node ** dugumDizisi, size_t dugumSayisi) {
-    if (dugumSayisi) {
-        bosDugumluCompleteTreeYapHelper(subtreeKoku, 0, dugumSayisi, dugumDizisi[0]->key, dugumDizisi[0]->data);
-        agacDugumleriniDiziDugumleriyleDegistir(subtreeKoku, dugumDizisi); // ptr degisecek
-        completeTreeHeightSubsizeYazHelper(subtreeKoku);
+insertYardimci(Node *&kok, const Key &key, const Object &data) {
+  if (kok) {
+    bool esit = false;
+    if (isLessThan(key, kok->key)) {
+      insertYardimci(kok->left, key, data);
     }
-}
-
-/* student private utility. */
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-insertYardimci(Node *& kok, const Key& key, const Object& data) {
-    if (kok) {
-        bool esit = false;
-        if (isLessThan(key, kok->key)) {
-            insertYardimci(kok->left, key, data);
-        } else if (isLessThan(kok->key, key)) {
-            insertYardimci(kok->right, key, data);
-        } else {
-            esit = true;
-            kok->data = data;
+    else if (isLessThan(kok->key, key)) {
+      insertYardimci(kok->right, key, data);
+    }
+    else {
+      esit = true;
+      kok->data = data;
+    }
+    if (!esit) {
+      dugumHeightVeSubsizeGuncelle(kok);
+      if (kok->subsize > 1) {
+        if (!isBalanced(kok->height, log2(subsize(kok)))) {
+          altAgaciCompleteTreeYap(kok);
         }
-        if (!esit) {
-            kok->height = 1 + max(height(kok->left), height(kok->right));
-            kok->subsize = 1 + subsize(kok->left) + subsize(kok->right);
-            if (kok->subsize > 1) {
-                if (!isBalanced(kok->height, log2(subsize(kok)))) {
-                    subtreeToCompleteBST(kok);
-                }
-            }
-        }
-    } else {
-        kok = new Node(key, data, NULL, NULL);
+      }
     }
-}
-
-/* student private utility. */
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-bool BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-yapraktir(Node * dugum) const {
-    if (dugum) {
-        return (!dugum->right && !dugum->left) ? true : false;
-    } else {
-        return false;
-    }
+  }
+  else {
+    kok = new Node(key, data, NULL, NULL);
+  }
 }
 
 /* student private utility. */
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-subtreeToCompleteBST(Node *& subtree) {
-    int dugumSayisi = subtree->subsize;
-    Node **dugumDizisi = new Node*[dugumSayisi];
-    Node **dugumDizisiPtr = dugumDizisi; 
-    dugumleriDiziyeEkleInorder(subtree, dugumDizisiPtr); // ptr degisecek
-    dugumDizisindenSubtreeYap(subtree, dugumDizisi, dugumSayisi);
-    delete[] dugumDizisi;
-}
-
-template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
-void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-removeYardimci(Node *& kok, const Key & key, bool asgariyiSiliyoruz) {
-    if (kok) {
-        bool esit = false;
-
-        if (isLessThan(key, kok->key)) {
-            removeYardimci(kok->left, key, asgariyiSiliyoruz);
-        } else if (isLessThan(kok->key, key)) {
-            removeYardimci(kok->right, key, asgariyiSiliyoruz);
-        } else {
-            esit = true;
-            if (kok->left && kok->right) {
-                Node * eskiDugum = kok;
-
-                Node *yeniDugum = asgari(kok->right);
-
-                removeYardimci(kok->right, yeniDugum->key, true);
-                kok = yeniDugum;
-                kok->right = eskiDugum->right;
-                kok->left = eskiDugum->left;
-                delete eskiDugum;
-                eskiDugum = NULL;
-
-            } else {
-                Node * eskiDugum = kok;
-                kok = kok->left ? kok->left : kok->right;
-                if (!asgariyiSiliyoruz) {
-                    delete eskiDugum;
-                    eskiDugum = NULL;
-                }
-            }
-        }
-    }
-    if (kok) {
-        kok->height = 1 + max(height(kok->left), height(kok->right));
-        kok->subsize = 1 + subsize(kok->left) + subsize(kok->right);
-        if (kok->subsize > 1) {
-            if (!isBalanced(kok->height, log2(subsize(kok)))) {
-                subtreeToCompleteBST(kok);
-            }
-        }
-    }
+altAgaciCompleteTreeYap(Node *&subtree) {
+  std::list<Node *> dugumListesi;
+  dugumleriListeyeEkleInorder(subtree, dugumListesi);
+  dugumListesindenCompleteTreeYap(subtree, dugumListesi);
 }
 
 /* student private utility. */
 template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
 void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
-findYardimci(Node * kok, std::list<Node*>& liste, const Key & az, const Key & cok) const {
-    if (kok) {
-        if (isLessThan(kok->key, az)) { // kok araligin solunda
-            findYardimci(kok->right, liste, az, cok);
-        } else if (isLessThan(cok, kok->key)) { // kok araligin saginda
-            findYardimci(kok->left, liste, az, cok);
-        } else { // kok araligin icinde
-            findYardimci(kok->left, liste, az, cok);
-            liste.push_front(kok);
-            findYardimci(kok->right, liste, az, cok);
-        }
+removeYardimci(Node *&kok, const Key &key, bool asgariyiSiliyoruz) {
+  if (kok) {
+    if (isLessThan(key, kok->key)) {
+      removeYardimci(kok->left, key, asgariyiSiliyoruz);
     }
+    else if (isLessThan(kok->key, key)) {
+      removeYardimci(kok->right, key, asgariyiSiliyoruz);
+    }
+    else {
+      if (kok->left && kok->right) {
+        Node *eskiKok = kok;
+        kok = asgariyiBul(kok->right);
+
+        removeYardimci(eskiKok->right, kok->key, true);
+
+        kok->right = eskiKok->right;
+        kok->left = eskiKok->left;
+        delete eskiKok;
+      }
+      else {
+        Node *eskiKok = kok;
+        kok = kok->left ? kok->left : kok->right;
+        if (!asgariyiSiliyoruz) {
+          delete eskiKok;
+        }
+      }
+    }
+  }
+  if (kok) {
+    dugumHeightVeSubsizeGuncelle(kok);
+    if (subsize(kok) > 1) {
+      if (!isBalanced(height(kok), log2(subsize(kok)))) {
+        altAgaciCompleteTreeYap(kok);
+      }
+    }
+  }
+}
+
+/* student private utility. */
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+findYardimci(Node * kok, std::list<Node *> &liste, const Key &az, const Key &cok) const {
+  if (kok) {
+    if (isLessThan(kok->key, az)) { // kok araligin solunda
+      findYardimci(kok->right, liste, az, cok);
+    }
+    else if (isLessThan(cok, kok->key)) { // kok araligin saginda
+      findYardimci(kok->left, liste, az, cok);
+    }
+    else { // kok araligin icinde
+      findYardimci(kok->left, liste, az, cok);
+      liste.push_back(kok);
+      findYardimci(kok->right, liste, az, cok);
+    }
+  }
+}
+
+/* student private utility. */
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+dugumHeightVeSubsizeGuncelle(Node *&dugum) {
+  dugum->height = 1 + max(height(dugum->left), height(dugum->right));
+  dugum->subsize = 1 + subsize(dugum->left) + subsize(dugum->right);
 }
