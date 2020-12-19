@@ -16,97 +16,101 @@
 
 class DefaultBalanceCondition    // default BST, do not change
 {
-  public:
-    bool operator() (int current_height, int ideal_height) const
-    {
-      return true;
-    }
+public:
+  bool operator() (int current_height, int ideal_height) const
+  {
+    return true;
+  }
 };
 
 
 template <typename Key, typename Object,
-          typename BalanceCondition=DefaultBalanceCondition,
-	  typename Comparator=std::less<Key> >
-class BinarySearchTree
+  typename BalanceCondition=DefaultBalanceCondition,
+  typename Comparator=std::less<Key> >
+  class BinarySearchTree
 {
-  public:  /* DO NOT CHANGE */
-    struct Node   // core structure of BinarySearchTree
-    {
-       Key key;         // unique key
-       Object data;     // data to be stored, characterized by key
-       Node * left;     // pointer to left subtree
-       Node * right;    // pointer to right subtree
-       size_t height;   // height of the node
-       size_t subsize;  // size of the subtree node roots including itself
+public:  /* DO NOT CHANGE */
+  struct Node   // core structure of BinarySearchTree
+  {
+    Key key;         // unique key
+    Object data;     // data to be stored, characterized by key
+    Node * left;     // pointer to left subtree
+    Node * right;    // pointer to right subtree
+    size_t height;   // height of the node
+    size_t subsize;  // size of the subtree node roots including itself
 
-       Node(const Key &, const Object &, 
-            Node *, Node *, size_t =0, size_t =1);   // Node constructor
-    };
+    Node(const Key &, const Object &, 
+      Node *, Node *, size_t =0, size_t =1);   // Node constructor
+  };
 
-  public:  /* DO NOT CHANGE PROTOTYPES */
-    BinarySearchTree();  // zero-parameter constructor
-    BinarySearchTree(const std::list<std::pair<Key, Object> > &); // list is always sorted!
-    ~BinarySearchTree();  // destructor
+public:  /* DO NOT CHANGE PROTOTYPES */
+  BinarySearchTree();  // zero-parameter constructor
+  BinarySearchTree(const std::list<std::pair<Key, Object> > &); // list is always sorted!
+  ~BinarySearchTree();  // destructor
 
-  public:  /* DO NOT CHANGE PROTOTYPES */
-    void insert(const Key &, const Object &);  // insert new Key-Object
-    void remove(const Key &);  // remove Node characterized by Key
-    void toCompleteBST();  // convert into a complete BST
+public:  /* DO NOT CHANGE PROTOTYPES */
+  void insert(const Key &, const Object &);  // insert new Key-Object
+  void remove(const Key &);  // remove Node characterized by Key
+  void toCompleteBST();  // convert into a complete BST
 
-  public:  /* DO NOT CHANGE PROTOTYPES */
-    Node * find(const Key &) const; // single item
-    std::list<Node *> find(const Key &, const Key &) const; // range queries
-    int height() const;  // return the height of the tree
-    size_t size() const; // return the number of items in the tree
-    bool empty() const;  //return whether the tree is empty or not
-    Node * getRoot() const; // return a pointer to the root of the tree
-    void print(std::ostream &) const;  // print tree structure into an output stream
+public:  /* DO NOT CHANGE PROTOTYPES */
+  Node * find(const Key &) const; // single item
+  std::list<Node *> find(const Key &, const Key &) const; // range queries
+  int height() const;  // return the height of the tree
+  size_t size() const; // return the number of items in the tree
+  bool empty() const;  //return whether the tree is empty or not
+  Node * getRoot() const; // return a pointer to the root of the tree
+  void print(std::ostream &) const;  // print tree structure into an output stream
 
-  private:  /* DO NOT CHANGE DATA TYPES AND IDENTIFIERS */
-    Node * root;                     // designated root
-    size_t numNodes;                 // size
-    Comparator isLessThan;           // operator upon which BST nodes are arranged
-    BalanceCondition isBalanced;     // signals whether the signal is balanced
-  
-  private:  /* DO NOT CHANGE PROTOTYPES */
-    Node * find(const Key &, Node *) const;
-    int height(Node *) const;
-    int subsize(Node *) const;
-    void print(Node *, std::ostream &) const;
-    Node *& asgariyiBul(Node *&kok) const;
+private:  /* DO NOT CHANGE DATA TYPES AND IDENTIFIERS */
+  Node * root;                     // designated root
+  size_t numNodes;                 // size
+  Comparator isLessThan;           // operator upon which BST nodes are arranged
+  BalanceCondition isBalanced;     // signals whether the signal is balanced
 
-    // Define your const private utility functions below this line
-    void printSideways(Node * kok, std::string str = "") const;
-    void findYardimci(Node * kok, std::list<Node *> &liste, const Key &az, const Key &cok) const;
-    void dugumleriListeyeEkleInorder(Node * kok, std::list<Node *> &liste) const;
+private:  /* DO NOT CHANGE PROTOTYPES */
+  Node * find(const Key &, Node *) const;
+  int height(Node *) const;
+  int subsize(Node *) const;
+  void print(Node *, std::ostream &) const;
+  Node *& asgariyiBul(Node *&kok) const;
 
-
-  private:
-    void makeEmpty(Node * &);       // utility for destructor
-    
-    // Define your private utility functions below this line
-    void completeTreeOlusturBosDugumlu(Node *&kok, size_t i, const size_t &dugumSayisi, const Key &varsayilanKey, const Object &varsayilanData);
-    void altAgacHeightSubsizeGuncelle(Node *kok);
-    void dugumListesindenCompleteTreeYap(Node *&subtreeKoku, const std::list<Node*>& liste);
-    void altAgaciCompleteTreeYap(Node *&subtree);
-
-    void agacDugumleriniListeDugumleriyleDegistir(Node *&kok, typename std::list<Node *>::const_iterator &it);
-
-    void insertYardimci(Node *&kok, const Key &key, const Object &data);
-    void removeYardimci(Node *&kok, const Key &key, bool asgariyiSiliyoruz = false);
-
-    void dugumHeightVeSubsizeGuncelle(Node *&dugum);
+  // Define your const private utility functions below this line
+  void printSideways(Node * kok, std::string str = "") const;
+  void findYardimci(Node * kok, std::list<Node *> &liste, const Key &az, const Key &cok) const;
+  void dugumleriListeyeEkleInorder(Node * kok, std::list<Node *> &liste) const;
 
 
-  private: /* DO NOT CHANGE PROTOTYPES: compiler defaults are blocked */  
-    BinarySearchTree(const BinarySearchTree &);
-    const BinarySearchTree & operator=(const BinarySearchTree &);
+private:
+  void makeEmpty(Node * &);       // utility for destructor
 
-  private:  // static utility functions
-    template <typename T> //static utility function
-    static const T & max(const T &, const T &);
+                                  // Define your private utility functions below this line
+  void completeTreeOlusturBosDugumlu(Node *&kok, size_t i, const size_t &dugumSayisi, const Key &varsayilanKey, const Object &varsayilanData);
+  void altAgacHeightSubsizeGuncelle(Node *kok);
+  void dugumListesindenCompleteTreeYap(Node *&subtreeKoku, const std::list<Node*>& liste);
+  void altAgaciCompleteTreeYap(Node *&subtree);
 
-    // Define more below this line if needed
+  void agacDugumleriniListeDugumleriyleDegistir(Node *&kok, typename std::list<Node *>::const_iterator &it);
+
+  void insertYardimci(Node *&kok, const Key &key, const Object &data);
+  void removeYardimci(Node *&kok, const Key &key, bool asgariyiSiliyoruz = false);
+
+  void dugumHeightVeSubsizeGuncelle(Node *&dugum);
+  size_t kokunuKazi(size_t dugumSayisi);
+
+  Node* dugumVektorundenDirektCompleteAgacYap(std::vector<Node*> & vektor, size_t bas, size_t son);
+
+
+private: /* DO NOT CHANGE PROTOTYPES: compiler defaults are blocked */  
+  BinarySearchTree(const BinarySearchTree &);
+  const BinarySearchTree & operator=(const BinarySearchTree &);
+
+private:  // static utility functions
+  template <typename T> //static utility function
+  static const T & max(const T &, const T &);
+
+  // Define more below this line if needed
+  static size_t minn(const size_t a, const size_t b);
 
 };
 
@@ -133,7 +137,7 @@ BinarySearchTree<K,O,B,C>::BinarySearchTree()
 // IMPLEMENT
 template <typename K, typename O, typename B, typename C>
 BinarySearchTree<K,O,B,C>::BinarySearchTree(const std::list<std::pair<K,O> > & datalist)
-   : root(NULL), numNodes(0)  // change it as you'd like
+  : root(NULL), numNodes(0)  // change it as you'd like
 {
   if (!datalist.empty()) {
     std::list<Node *> dugumListesi;
@@ -288,7 +292,7 @@ BinarySearchTree<K,O,B,C>::makeEmpty(Node * & t)
 
     --numNodes;
   }
-  
+
   t = NULL;
 }
 
@@ -339,7 +343,7 @@ BinarySearchTree<K,O,B,C>::print(Node * t, std::ostream & out) const
       out << '{' << (t->key) << ",H" << t->height << ",S" << t->subsize << '}';
     }
   }
-  
+
   if (t != NULL && t->right != NULL)
   {
     print( t->right, out );
@@ -556,4 +560,38 @@ void BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
 dugumHeightVeSubsizeGuncelle(Node *&dugum) {
   dugum->height = 1 + max(height(dugum->left), height(dugum->right));
   dugum->subsize = 1 + subsize(dugum->left) + subsize(dugum->right);
+}
+
+/* student private utility. */
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+size_t BinarySearchTree<Key, Object, BalanceCondition, Comparator>::kokunuKazi(size_t dugumSayisi) {
+  int levelSayisi = log2(dugumSayisi) + 1;
+  int solAgacDugumSayisi = minn((dugumSayisi-exp2(levelSayisi-1)+1), exp2(levelSayisi-2));
+  return exp2(levelSayisi-2) + solAgacDugumSayisi - 1;
+}
+
+/* student private utility. */
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+typename BinarySearchTree<Key, Object, BalanceCondition, Comparator>::Node* BinarySearchTree<Key, Object, BalanceCondition, Comparator>::
+dugumVektorundenDirektCompleteAgacYap(std::vector<Node*> & vektor, size_t bas, size_t son) {
+  if (son - bas + 1 <= 0) {
+    return NULL;
+  }
+  else if (son - bas + 1 == 1) {
+    vektor[bas]->left = NULL;
+    vektor[bas]->right = NULL;
+    return vektor[bas];
+  }
+  else {
+    size_t orta = bas + kokunuKazi(son-bas+1);
+    vektor[orta]->left = dugumVektorundenDirektCompleteAgacYap(vektor, bas, orta-1);
+    vektor[orta]->right = dugumVektorundenDirektCompleteAgacYap(vektor, orta+1, son);
+    return vektor[orta];
+  }
+}
+
+/* student private static utility. */
+template<typename Key, typename Object, typename BalanceCondition, typename Comparator>
+size_t BinarySearchTree<Key, Object, BalanceCondition, Comparator>::minn(const size_t a, const size_t b) {
+  return a < b ? a : b;
 }
